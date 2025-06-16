@@ -216,7 +216,7 @@ local function autoLockFunction()
                             task.wait(0.1) -- Brief pause to ensure interaction
                             OrionLib:MakeNotification({
                                 Name = "AutoLock Teleport",
-                                Content = "Teleported to Hitbox (TimeLeft = 2).",
+                                Content = "Teleported to Hitbox (TimeLeft = 3).",
                                 Image = "rbxassetid://4483345998",
                                 Time = 3
                             })
