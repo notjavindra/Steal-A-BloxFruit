@@ -209,7 +209,7 @@ local function autoLockFunction()
                 local hitbox = lockPurchase:FindFirstChild("Hitbox")
                 if hitbox and hitbox:FindFirstChild("BillboardGui") then
                     local baseLockLabel = hitbox.BillboardGui:FindFirstChild("TimeLeft")
-                    if baseLockLabel and baseLockLabel:IsA("TextLabel") and baseLockLabel.Text == "2" then
+                    if baseLockLabel and baseLockLabel:IsA("TextLabel") and baseLockLabel.Text == "3" then
                         local originalCFrame = Player.Character.HumanoidRootPart.CFrame
                         local targetCFrame = hitbox.CFrame + Vector3.new(0, 5, 0)
                         Player.Character.HumanoidRootPart.CFrame = targetCFrame
@@ -217,7 +217,7 @@ local function autoLockFunction()
                         Player.Character.HumanoidRootPart.CFrame = originalCFrame
                         OrionLib:MakeNotification({
                             Name = "AutoLock Teleport",
-                            Content = "Teleported to Hitbox and back (TimeLeft = 2).",
+                            Content = "Teleported to Hitbox and back (TimeLeft = 3a).",
                             Image = "rbxassetid://4483345998",
                             Time = 3
                         })
@@ -247,7 +247,7 @@ local MainTab = Window:MakeTab({
 
 local GravityScale = 1
 local selectedTool = nil
-local flyEnabled = false
+local fly enabled = false
 local noclipEnabled = false
 local flySpeed = 50
 local bodyVelocity
@@ -387,7 +387,7 @@ MainTab:AddToggle({
             OrionLib:MakeNotification({
                 Name = "Fly Mode",
                 Content = "Fly Mode enabled (WASD to move, Space to ascend, Ctrl to descend)",
-                Image = "rbxticketid://4483345998",
+                Image = "rbxassetid://4483345998",
                 Time = 3
             })
         else
@@ -756,7 +756,7 @@ MiscTab:AddButton({
 -- FPS Booster Toggle
 MiscTab:AddToggle({
     Name = "FPS Booster",
-    Default = false
+    Default = false,
     Callback = function(Value)
         fpsBoost = Value
         if fpsBoost then
