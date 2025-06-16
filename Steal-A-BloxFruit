@@ -210,15 +210,13 @@ local function autoLockFunction()
                 if hitbox and hitbox:FindFirstChild("BillboardGui") then
                     local baseLockLabel = hitbox.BillboardGui:FindFirstChild("TimeLeft")
                     if baseLockLabel and baseLockLabel:IsA("TextLabel") then
-                        if baseLockLabel.Text == "2" then
-                            local originalCFrame = Player.Character.HumanoidRootPart.CFrame
+                        if baseLockLabel.Text == "3" then
                             local targetCFrame = hitbox.CFrame + Vector3.new(0, 5, 0)
                             Player.Character.HumanoidRootPart.CFrame = targetCFrame
                             task.wait(0.1) -- Brief pause to ensure interaction
-                            Player.Character.HumanoidRootPart.CFrame = originalCFrame
                             OrionLib:MakeNotification({
                                 Name = "AutoLock Teleport",
-                                Content = "Teleported to Hitbox and back (TimeLeft = 2).",
+                                Content = "Teleported to Hitbox (TimeLeft = 3).",
                                 Image = "rbxassetid://4483345998",
                                 Time = 3
                             })
