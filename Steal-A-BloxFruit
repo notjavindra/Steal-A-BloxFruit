@@ -210,7 +210,7 @@ local function autoLockFunction()
                 if hitbox and hitbox:FindFirstChild("BillboardGui") then
                     local baseLockLabel = hitbox.BillboardGui:FindFirstChild("TimeLeft")
                     if baseLockLabel and baseLockLabel:IsA("TextLabel") then
-                        if baseLockLabel.Text == "3" then
+                        if baseLockLabel.Text == "5" then
                             local targetCFrame = hitbox.CFrame + Vector3.new(0, 5, 0)
                             Player.Character.HumanoidRootPart.CFrame = targetCFrame
                             task.wait(0.1) -- Brief pause to ensure interaction
@@ -908,7 +908,7 @@ local CreditsTab = Window:MakeTab({
 CreditsTab:AddLabel("Scripted by Javindra.")
 CreditsTab:AddLabel("Founded by Crowned.")
 CreditsTab:AddButton({
-    Name = "Join Discord Server",
+    Name = "Join Discord Server!!!!",
     Callback = function()
         setclipboard("https://discord.gg/WA2XTGMM")
         OrionLib:MakeNotification({
