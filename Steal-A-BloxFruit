@@ -1,5 +1,13 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/ionlyusegithubformcmods/1-Line-Scripts/main/Mobile%20Friendly%20Orion')))()
+if not OrionLib then
+    warn("Failed to load OrionLib. Check internet connection or URL.")
+    return
+end
 local Player = game.Players.LocalPlayer
+if not Player then
+    warn("Player not found. Script must run on the client.")
+    return
+end
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -48,6 +56,7 @@ OrionLib:MakeNotification({
     Time = 5
 })
 
+-- [Rest of the script remains unchanged]
 -- Visuals Tab Enhancements
 local playerHighlights = {}
 local playerNameGuis = {}
