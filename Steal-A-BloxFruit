@@ -952,7 +952,7 @@ local CreditsTab = Window:MakeTab({
 CreditsTab:AddLabel("Scripted by Javindra.")
 CreditsTab:AddLabel("Founded by Crowned.")
 CreditsTab:AddButton({
-    Name = "Join Discord Server!!",
+    Name = "Join Discord Server!!!",
     Callback = function()
         setclipboard("https://discord.gg/WA2XTGMM")
         OrionLib:MakeNotification({
