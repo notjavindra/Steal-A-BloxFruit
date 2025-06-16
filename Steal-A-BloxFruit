@@ -7,7 +7,7 @@ local Workspace = game:GetService("Workspace")
 local UIS = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
-local setclipboard = setclipboard or function(text) -- Compatibility for clipboard
+local setclipboard = setclipboard or function(text)
     if syn then
         syn.write_clipboard(text)
     elseif clipboard_set then
@@ -54,6 +54,7 @@ local playerNameGuis = {}
 local espEnabled = false
 local nameEnabled = false
 local baseLockEnabled = false
+local autoLockEnabled = false
 local baseLockGui = nil
 
 local function addHighlight(player)
@@ -147,6 +148,96 @@ local function updateBaseLockVisual()
     end
 end
 
+-- Initial teleport to AutoLock part on script execution
+spawn(function()
+    if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+        local textLabel = findBaseTextLabel()
+        if textLabel then
+            local lockPurchase = textLabel.Parent.Parent.Parent:FindFirstChild("LockPurchase")
+            if lockPurchase then
+                local hitbox = lockPurchase:FindFirstChild("Hitbox")
+                if hitbox and hitbox:IsA("BasePart") then
+                    local targetCFrame = hitbox.CFrame + Vector3.new(0, 5, 0)
+                    Player.Character.HumanoidRootPart.CFrame = targetCFrame
+                    OrionLib:MakeNotification({
+                        Name = "Initial Teleport",
+                        Content = "Teleported to Hitbox for studio lock.",
+                        Image = "rbxassetid://4483345998",
+                        Time = 3
+                    })
+                else
+                    OrionLib:MakeNotification({
+                        Name = "Hitbox Not Found",
+                        Content = "Hitbox not found in LockPurchase.",
+                        Image = "rbxassetid://4483345998",
+                        Time = 3
+                    })
+                end
+            else
+                OrionLib:MakeNotification({
+                    Name = "LockPurchase Not Found",
+                    Content = "LockPurchase not found in studio hierarchy.",
+                    Image = "rbxassetid://4483345998",
+                    Time = 3
+                })
+            end
+        else
+            OrionLib:MakeNotification({
+                Name = "Studio Not Found",
+                Content = "Could not find TextLabel with '" .. Player.Name .. "'s Studio'.",
+                Image = "rbxassetid://4483345998",
+                Time = 3
+            })
+        end
+    else
+        OrionLib:MakeNotification({
+            Name = "Error",
+            Content = "Character or HumanoidRootPart not found.",
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
+    end
+end)
+
+-- AutoLock toggle logic
+local function autoLockFunction()
+    if autoLockEnabled and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+        local textLabel = findBaseTextLabel()
+        if textLabel then
+            local lockPurchase = textLabel.Parent.Parent.Parent:FindFirstChild("LockPurchase")
+            if lockPurchase then
+                local hitbox = lockPurchase:FindFirstChild("Hitbox")
+                if hitbox and hitbox:FindFirstChild("BillboardGui") then
+                    local baseLockLabel = hitbox.BillboardGui:FindFirstChild("TimeLeft")
+                    if baseLockLabel and baseLockLabel:IsA("TextLabel") and baseLockLabel.Text == "0" then
+                        local originalCFrame = Player.Character.HumanoidRootPart.CFrame
+                        local targetCFrame = hitbox.CFrame + Vector3.new(0, 5, 0)
+                        Player.Character.HumanoidRootPart.CFrame = targetCFrame
+                        task.wait(0.1) -- Brief pause to ensure interaction
+                        Player.Character.HumanoidRootPart.CFrame = originalCFrame
+                        OrionLib:MakeNotification({
+                            Name = "AutoLock Teleport",
+                            Content = "Teleported to Hitbox and back (TimeLeft = 0).",
+                            Image = "rbxassetid://4483345998",
+                            Time = 3
+                        })
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Run AutoLock check every 0.1 seconds
+spawn(function()
+    while true do
+        if autoLockEnabled then
+            autoLockFunction()
+        end
+        task.wait(0.1)
+    end
+end)
+
 -- ======= MAIN TAB =======
 local MainTab = Window:MakeTab({
     Name = "Main",
@@ -156,7 +247,7 @@ local MainTab = Window:MakeTab({
 
 local GravityScale = 1
 local selectedTool = nil
-local flyEnabled = false
+local fly enabled = false
 local noclipEnabled = false
 local flySpeed = 50
 local bodyVelocity
@@ -221,57 +312,18 @@ MainTab:AddButton({
     end
 })
 
--- AutoLockBase Button
-MainTab:AddButton({
+-- AutoLock Studio Toggle
+MainTab:AddToggle({
     Name = "AutoLock Studio",
-    Callback = function()
-        if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-            local textLabel = findBaseTextLabel()
-            if textLabel then
-                local lockPurchase = textLabel.Parent.Parent.Parent:FindFirstChild("LockPurchase")
-                if lockPurchase then
-                    local hitbox = lockPurchase:FindFirstChild("Hitbox")
-                    if hitbox and hitbox:IsA("BasePart") then
-                        local targetCFrame = hitbox.CFrame + Vector3.new(0, 5, 0)
-                        Player.Character.HumanoidRootPart.CFrame = targetCFrame
-                        OrionLib:MakeNotification({
-                            Name = "Teleported to Lock Part",
-                            Content = "Teleported to Hitbox for studio lock.",
-                            Image = "rbxassetid://4483345998",
-                            Time = 3
-                        })
-                    else
-                        OrionLib:MakeNotification({
-                            Name = "Hitbox Not Found",
-                            Content = "Hitbox not found in LockPurchase.",
-                            Image = "rbxassetid://4483345998",
-                            Time = 3
-                        })
-                    end
-                else
-                    OrionLib:MakeNotification({
-                        Name = "LockPurchase Not Found",
-                        Content = "LockPurchase not found in studio hierarchy.",
-                        Image = "rbxassetid://4483345998",
-                        Time = 3
-                    })
-                end
-            else
-                OrionLib:MakeNotification({
-                    Name = "Studio Not Found",
-                    Content = "Could not find TextLabel with '" .. Player.Name .. "'s Studio'.",
-                    Image = "rbxassetid://4483345998",
-                    Time = 3
-                })
-            end
-        else
-            OrionLib:MakeNotification({
-                Name = "Error",
-                Content = "Character or HumanoidRootPart not found.",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
-        end
+    Default = false,
+    Callback = function(Value)
+        autoLockEnabled = Value
+        OrionLib:MakeNotification({
+            Name = "AutoLock Studio",
+            Content = "AutoLock Studio " .. (Value and "enabled" or "disabled"),
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
     end
 })
 
@@ -410,7 +462,7 @@ local AutoSlap = false
 local combatTools = {
     "Bat",
     "SuperBat",
- }
+}
 
 CombatTab:AddToggle({
     Name = "Auto-Attack",
@@ -786,7 +838,7 @@ SettingsTab:AddButton({
     Name = "Load Settings",
     Callback = function()
         OrionLib:LoadConfig()
-        print("Loaded config:", espEnabled, nameEnabled, baseLockEnabled, AutoSlap, antiAFK, fpsBoost, spinBot, flyEnabled, noclipEnabled, GravityScale)
+        print("Loaded config:", espEnabled, nameEnabled, baseLockEnabled, AutoSlap, antiAFK, fpsBoost, spinBot, flyEnabled, noclipEnabled, GravityScale, autoLockEnabled)
         OrionLib:MakeNotification({
             Name = "Settings Loaded",
             Content = "Settings have been loaded successfully!",
@@ -802,6 +854,7 @@ SettingsTab:AddButton({
         espEnabled = false
         nameEnabled = false
         baseLockEnabled = false
+        autoLockEnabled = false
         AutoSlap = false
         antiAFK = false
         fpsBoost = false
