@@ -209,21 +209,51 @@ local function autoLockFunction()
                 local hitbox = lockPurchase:FindFirstChild("Hitbox")
                 if hitbox and hitbox:FindFirstChild("BillboardGui") then
                     local baseLockLabel = hitbox.BillboardGui:FindFirstChild("TimeLeft")
-                    if baseLockLabel and baseLockLabel:IsA("TextLabel") and baseLockLabel.Text == "4" then
-                        local originalCFrame = Player.Character.HumanoidRootPart.CFrame
-                        local targetCFrame = hitbox.CFrame + Vector3.new(0, 5, 0)
-                        Player.Character.HumanoidRootPart.CFrame = targetCFrame
-                        task.wait(2) -- Brief pause to ensure interaction
-                        Player.Character.HumanoidRootPart.CFrame = originalCFrame
+                    if baseLockLabel and baseLockLabel:IsA("TextLabel") then
+                        if baseLockLabel.Text == "4" then
+                            local originalCFrame = Player.Character.HumanoidRootPart.CFrame
+                            local targetCFrame = hitbox.CFrame + Vector3.new(0, 5, 0)
+                            Player.Character.HumanoidRootPart.CFrame = targetCFrame
+                            task.wait(0.1) -- Brief pause to ensure interaction
+                            Player.Character.HumanoidRootPart.CFrame = originalCFrame
+                            OrionLib:MakeNotification({
+                                Name = "AutoLock Teleport",
+                                Content = "Teleported to Hitbox and back (TimeLeft = 2).",
+                                Image = "rbxassetid://4483345998",
+                                Time = 3
+                            })
+                        end
+                    else
                         OrionLib:MakeNotification({
-                            Name = "AutoLock Teleport",
-                            Content = "Teleported to Hitbox and back (TimeLeft = 4a).",
+                            Name = "AutoLock Error",
+                            Content = "TimeLeft label not found.",
                             Image = "rbxassetid://4483345998",
                             Time = 3
                         })
                     end
+                else
+                    OrionLib:MakeNotification({
+                        Name = "AutoLock Error",
+                        Content = "Hitbox or BillboardGui not found.",
+                        Image = "rbxassetid://4483345998",
+                        Time = 3
+                    })
                 end
+            else
+                OrionLib:MakeNotification({
+                    Name = "AutoLock Error",
+                    Content = "LockPurchase not found.",
+                    Image = "rbxassetid://4483345998",
+                    Time = 3
+                })
             end
+        else
+            OrionLib:MakeNotification({
+                Name = "AutoLock Error",
+                Content = "Studio TextLabel not found.",
+                Image = "rbxassetid://4483345998",
+                Time = 3
+            })
         end
     end
 end
@@ -247,7 +277,7 @@ local MainTab = Window:MakeTab({
 
 local GravityScale = 1
 local selectedTool = nil
-local fly enabled = false
+local flyEnabled = false
 local noclipEnabled = false
 local flySpeed = 50
 local bodyVelocity
@@ -320,7 +350,7 @@ MainTab:AddToggle({
         autoLockEnabled = Value
         OrionLib:MakeNotification({
             Name = "AutoLock Studio",
-            Content = "AutoLock Studio " .. (Value and "enabled" or "disabled"),
+            Content = "AutoLock Studio " .. (Value and "enabled (checking TimeLeft every 0.1s)" or "disabled"),
             Image = "rbxassetid://4483345998",
             Time = 3
         })
@@ -712,191 +742,4 @@ MiscTab:AddToggle({
             })
         else
             OrionLib:MakeNotification({
-                Name = "Anti-AFK",
-                Content = "Anti-AFK disabled",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
-        end
-    end
-})
-
--- Server Hop Button
-MiscTab:AddButton({
-    Name = "Server Hop",
-    Callback = function()
-        local servers = {}
-        local req = HttpService:GetAsync("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")
-        local data = HttpService:JSONDecode(req)
-        for _, server in pairs(data.data) do
-            if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                table.insert(servers, server.id)
-            end
-        end
-        if #servers > 0 then
-            local randomServer = servers[math.random(1, #servers)]
-            TeleportService:TeleportToPlaceInstance(game.PlaceId, randomServer, Player)
-            OrionLib:MakeNotification({
-                Name = "Server Hop",
-                Content = "Hopping to a new server...",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
-        else
-            OrionLib:MakeNotification({
-                Name = "Server Hop Failed",
-                Content = "No available servers found.",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
-        end
-    end
-})
-
--- FPS Booster Toggle
-MiscTab:AddToggle({
-    Name = "FPS Booster",
-    Default = false,
-    Callback = function(Value)
-        fpsBoost = Value
-        if fpsBoost then
-            settings().Rendering.QualityLevel = 1
-            game:GetService("Lighting").GlobalShadows = false
-            game:GetService("Lighting").FogEnd = 9e9
-            OrionLib:MakeNotification({
-                Name = "FPS Booster",
-                Content = "FPS Booster enabled",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
-        else
-            settings().Rendering.QualityLevel = 6
-            game:GetService("Lighting").GlobalShadows = true
-            game:GetService("Lighting").FogEnd = 100000
-            OrionLib:MakeNotification({
-                Name = "FPS Booster",
-                Content = "FPS Booster disabled",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
-        end
-    end
-})
-
--- Spin Bot Toggle
-MiscTab:AddToggle({
-    Name = "Spin Bot",
-    Default = false,
-    Callback = function(Value)
-        spinBot = Value
-        if spinBot and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-            spawn(function()
-                while spinBot do
-                    local root = Player.Character.HumanoidRootPart
-                    root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(5), 0)
-                    task.wait(0.01)
-                end
-            end)
-            OrionLib:MakeNotification({
-                Name = "Spin Bot",
-                Content = "Spin Bot enabled",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
-        else
-            OrionLib:MakeNotification({
-                Name = "Spin Bot",
-                Content = "Spin Bot disabled",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
-        end
-    end
-})
-
--- ======= SETTINGS TAB =======
-local SettingsTab = Window:MakeTab({
-    Name = "Settings",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-
-SettingsTab:AddButton({
-    Name = "Save Settings",
-    Callback = function()
-        OrionLib:SaveConfig()
-        OrionLib:MakeNotification({
-            Name = "Settings Saved",
-            Content = "Settings have been saved successfully!",
-            Image = "rbxassetid://4483345998",
-            Time = 3
-        })
-    end
-})
-
-SettingsTab:AddButton({
-    Name = "Load Settings",
-    Callback = function()
-        OrionLib:LoadConfig()
-        print("Loaded config:", espEnabled, nameEnabled, baseLockEnabled, AutoSlap, antiAFK, fpsBoost, spinBot, flyEnabled, noclipEnabled, GravityScale, autoLockEnabled)
-        OrionLib:MakeNotification({
-            Name = "Settings Loaded",
-            Content = "Settings have been loaded successfully!",
-            Image = "rbxassetid://4483345998",
-            Time = 3
-        })
-    end
-})
-
-SettingsTab:AddButton({
-    Name = "Reset to Default",
-    Callback = function()
-        espEnabled = false
-        nameEnabled = false
-        baseLockEnabled = false
-        autoLockEnabled = false
-        AutoSlap = false
-        antiAFK = false
-        fpsBoost = false
-        spinBot = false
-        flyEnabled = false
-        noclipEnabled = false
-        GravityScale = 1
-        OrionLib:MakeNotification({
-            Name = "Settings Reset",
-            Content = "All settings have been reset to default!",
-            Image = "rbxassetid://4483345998",
-            Time = 3
-        })
-    end
-})
-
--- ======= CREDITS TAB =======
-local CreditsTab = Window:MakeTab({
-    Name = "Credits",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-CreditsTab:AddLabel("Scripted by Javindra.")
-CreditsTab:AddLabel("Founded by Crowned.")
-CreditsTab:AddButton({
-    Name = "Join Discord Server",
-    Callback = function()
-        setclipboard("https://discord.gg/WA2XTGMM")
-        OrionLib:MakeNotification({
-            Name = "Discord Link",
-            Content = "Link copied to clipboard! Opening Discord invite...",
-            Image = "rbxassetid://4483345998",
-            Time = 3
-        })
-        spawn(function()
-            if syn and syn.request then
-                syn.request({Url = "http://www.roblox.com/games/place?id=" .. game.PlaceId .. "&linkId=" .. HttpService:GenerateGUID(false), Method = "GET"})
-            else
-                game:HttpGet("https://discord.gg/WA2XTGMM")
-            end
-        end)
-    end
-})
-
-OrionLib:Init()
+                Name = "Anti
