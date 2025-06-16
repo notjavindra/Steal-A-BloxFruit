@@ -210,7 +210,7 @@ local function autoLockFunction()
                 if hitbox and hitbox:FindFirstChild("BillboardGui") then
                     local baseLockLabel = hitbox.BillboardGui:FindFirstChild("TimeLeft")
                     if baseLockLabel and baseLockLabel:IsA("TextLabel") then
-                        if baseLockLabel.Text == "2" then
+                        if baseLockLabel.Text == "3" then
                             local originalCFrame = Player.Character.HumanoidRootPart.CFrame
                             local targetCFrame = hitbox.CFrame + Vector3.new(0, 5, 0)
                             Player.Character.HumanoidRootPart.CFrame = targetCFrame
