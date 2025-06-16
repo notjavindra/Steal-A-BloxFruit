@@ -199,43 +199,18 @@ spawn(function()
     end
 end)
 
+-- AutoLock toggle logic
 local function autoLockFunction()
     if autoLockEnabled and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
         local textLabel = findBaseTextLabel()
         if textLabel then
-            OrionLib:MakeNotification({
-                Name = "Debug",
-                Content = "Found Studio TextLabel.",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
             local lockPurchase = textLabel.Parent.Parent.Parent:FindFirstChild("LockPurchase")
             if lockPurchase then
-                OrionLib:MakeNotification({
-                    Name = "Debug",
-                    Content = "Found LockPurchase.",
-                    Image = "rbxassetid://4483345998",
-                    Time = 3
-                })
                 local hitbox = lockPurchase:FindFirstChild("Hitbox")
                 if hitbox and hitbox:FindFirstChild("BillboardGui") then
-                    OrionLib:MakeNotification({
-                        Name = "Debug",
-                        Content = "Found Hitbox and BillboardGui.",
-                        Image = "rbxassetid://4483345998",
-                        Time = 3
-                    })
                     local baseLockLabel = hitbox.BillboardGui:FindFirstChild("TimeLeft")
                     if baseLockLabel and baseLockLabel:IsA("TextLabel") then
-                        local currentTime = baseLockLabel.Text
-                        OrionLib:MakeNotification({
-                            Name = "Debug",
-                            Content = "TimeLeft is: " .. tostring(currentTime),
-                            Image = "rbxassetid://4483345998",
-                            Time = 3
-                        })
-                        local timeNum = tonumber(currentTime)
-                        if timeNum and timeNum == 4 then
+                        if not baseLockLabel.Visible then
                             if hitbox and hitbox:IsA("BasePart") then
                                 local targetCFrame = hitbox.CFrame + Vector3.new(0, 5, 0)
                                 local success, err = pcall(function()
@@ -245,7 +220,7 @@ local function autoLockFunction()
                                     task.wait(0.1) -- Brief pause to ensure interaction
                                     OrionLib:MakeNotification({
                                         Name = "AutoLock Teleport",
-                                        Content = "Teleported to Hitbox (TimeLeft = 4).",
+                                        Content = "Teleported to Hitbox (TimeLeft invisible).",
                                         Image = "rbxassetid://4483345998",
                                         Time = 3
                                     })
@@ -300,6 +275,7 @@ local function autoLockFunction()
         end
     end
 end
+
 -- Run AutoLock check every 0.1 seconds
 spawn(function()
     while true do
@@ -392,7 +368,7 @@ MainTab:AddToggle({
         autoLockEnabled = Value
         OrionLib:MakeNotification({
             Name = "AutoLock Studio",
-            Content = "AutoLock Studio " .. (Value and "enabled (checking TimeLeft every 0.1s)" or "disabled"),
+            Content = "AutoLock Studio " .. (Value and "enabled (checking TimeLeft visibility every 0.1s)" or "disabled"),
             Image = "rbxassetid://4483345998",
             Time = 3
         })
@@ -952,7 +928,7 @@ local CreditsTab = Window:MakeTab({
 CreditsTab:AddLabel("Scripted by Javindra.")
 CreditsTab:AddLabel("Founded by Crowned.")
 CreditsTab:AddButton({
-    Name = "Join Discord Server!!!",
+    Name = "Join Discord Server",
     Callback = function()
         setclipboard("https://discord.gg/WA2XTGMM")
         OrionLib:MakeNotification({
