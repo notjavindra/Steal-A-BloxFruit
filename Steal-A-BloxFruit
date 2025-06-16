@@ -125,27 +125,24 @@ local function updateBaseLockVisual()
     if baseLockEnabled and baseLockGui then
         local textLabel = findBaseTextLabel()
         if textLabel then
-             local touchPart = textLabel.Parent.Parent.Parent:FindFirstChild("LockPurchase")
-                if touchPart then
-                    touchPart = touchPart:FindFirstChild("Hitbox")
-                    if touchPart and touchPart:FindFirstChild("BillboardGui") then
-                        local remainingTimeText = touchPart.BillboardGui:FindFirstChild("TimeLeft")
-                        if remainingTimeText and remainingTimeText:IsA("TextLabel") then
-                            baseLockGui.TextLabel.Text = "Base Unlocks In: " .. remainingTimeText.Text
-                        else
-                            baseLockGui.TextLabel.Text = "Base Unlocks In: No Remaining Time"
-                        end
+            local lockPurchase = textLabel.Parent.Parent.Parent:FindFirstChild("LockPurchase")
+            if lockPurchase then
+                local hitbox = lockPurchase:FindFirstChild("Hitbox")
+                if hitbox and hitbox:FindFirstChild("BillboardGui") then
+                    local remainingTimeText = hitbox.BillboardGui:FindFirstChild("TimeLeft")
+                    if remainingTimeText and remainingTimeText:IsA("TextLabel") then
+                        baseLockGui.TextLabel.Text = "Studio Unlocks In: " .. remainingTimeText.Text
                     else
-                        baseLockGui.TextLabel.Text = "Base Unlocks In: No BillboardGui"
+                        baseLockGui.TextLabel.Text = "Studio Unlocks In: No Remaining Time"
                     end
                 else
-                    baseLockGui.TextLabel.Text = "Base Unlocks In: No PlotBlock"
+                    baseLockGui.TextLabel.Text = "Studio Unlocks In: No BillboardGui"
                 end
             else
-                baseLockGui.TextLabel.Text = "Base Unlocks In: No Purchases"
+                baseLockGui.TextLabel.Text = "Studio Unlocks In: No LockPurchase"
             end
         else
-            baseLockGui.TextLabel.Text = "Base Unlocks In: No Base Found"
+            baseLockGui.TextLabel.Text = "Studio Unlocks In: No Studio Found"
         end
     end
 end
@@ -178,38 +175,87 @@ MainTab:AddSlider({
     end
 })
 
+-- Tools Dropdown (Assuming Blox Fruits tools like swords or fruits)
+local toolOptions = {}
+for _, item in pairs(game.ReplicatedStorage:WaitForChild("Remotes", 5) or game.ReplicatedStorage:WaitForChild("Items", 5) or game.Workspace:WaitForChild("Items", 5) or {}) do
+    if item:IsA("Tool") then
+        table.insert(toolOptions, item.Name)
+    end
+end
+MainTab:AddDropdown({
+    Name = "Select Fruit/Weapon",
+    Default = toolOptions[1] or "",
+    Options = toolOptions,
+    Callback = function(Value)
+        selectedTool = Value
+    end
+})
+
+-- Get Selected Tool Button
+MainTab:AddButton({
+    Name = "Get Selected Fruit/Weapon",
+    Callback = function()
+        if selectedTool and Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") then
+            local tool = game.ReplicatedStorage:FindFirstChild(selectedTool) or game.Workspace:FindFirstChild(selectedTool)
+            if tool and tool:IsA("Tool") then
+                local clonedTool = tool:Clone()
+                clonedTool.Parent = Player.Backpack
+                OrionLib:MakeNotification({
+                    Name = "Item Given",
+                    Content = "You received " .. selectedTool .. "!",
+                    Image = "rbxassetid://4483345998",
+                    Time = 3
+                })
+            else
+                OrionLib:MakeNotification({
+                    Name = "Error",
+                    Content = "Fruit/Weapon not found.",
+                    Image = "rbxassetid://4483345998",
+                    Time = 3
+                })
+            end
+        else
+            OrionLib:MakeNotification({
+                Name = "Error",
+                Content = "No item selected or character not found.",
+                Image = "rbxassetid://4483345998",
+                Time = 3
+            })
+        end
+    end
+})
 
 -- Tween to Base
 MainTab:AddButton({
-    Name = "Tween to Base",
+    Name = "Tween to Studio",
     Callback = function()
         if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
             local textLabel = findBaseTextLabel()
             if textLabel then
-                local basePart = textLabel.Parent.Parent.Parent.Sign
+                local basePart = textLabel.Parent.Parent.Parent.Parent
                 if basePart:IsA("BasePart") or basePart:IsA("Model") then
                     local targetCFrame = basePart:IsA("BasePart") and basePart.CFrame + Vector3.new(0, 5, 0) or basePart:GetPrimaryPartCFrame() + Vector3.new(0, 5, 0)
                     local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
                     local tween = TweenService:Create(Player.Character.HumanoidRootPart, tweenInfo, {CFrame = targetCFrame})
                     tween:Play()
                     OrionLib:MakeNotification({
-                        Name = "Tweening to Base",
-                        Content = "Moving to your base!",
+                        Name = "Tweening to Studio",
+                        Content = "Moving to your studio!",
                         Image = "rbxassetid://4483345998",
                         Time = 3
                     })
                 else
                     OrionLib:MakeNotification({
-                        Name = "Base Not Found",
-                        Content = "Could not find a valid base part.",
+                        Name = "Studio Not Found",
+                        Content = "Could not find a valid studio part.",
                         Image = "rbxassetid://4483345998",
                         Time = 3
                     })
                 end
             else
                 OrionLib:MakeNotification({
-                    Name = "Base Not Found",
-                    Content = "Could not find TextLabel with '" .. Player.Name .. "'s Base'.",
+                    Name = "Studio Not Found",
+                    Content = "Could not find TextLabel with '" .. Player.Name .. "'s Studio'.",
                     Image = "rbxassetid://4483345998",
                     Time = 3
                 })
@@ -227,51 +273,43 @@ MainTab:AddButton({
 
 -- AutoLockBase Button
 MainTab:AddButton({
-    Name = "AutoLockBase",
+    Name = "AutoLock Studio",
     Callback = function()
         if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
             local textLabel = findBaseTextLabel()
             if textLabel then
-                local touchPart = textLabel.Parent.Parent.Parent:FindFirstChild("LockPurchase")
-                if touchPart then
-                    touchPart = touchPart:FindFirstChild("Hitbox")
-                      if touchPart and touchPart:IsA("BasePart") then
-                            local targetCFrame = touchPart.CFrame + Vector3.new(0, 5, 0)
-                            Player.Character.HumanoidRootPart.CFrame = targetCFrame
-                            OrionLib:MakeNotification({
-                                Name = "Teleported to Lock Part",
-                                Content = "Teleported to Main part for base lock.",
-                                Image = "rbxassetid://4483345998",
-                                Time = 3
-                            })
-                        else
-                            OrionLib:MakeNotification({
-                                Name = "Touch Part Not Found",
-                                Content = "Main part not found in PlotBlock.",
-                                Image = "rbxassetid://4483345998",
-                                Time = 3
-                            })
-                        end
+                local lockPurchase = textLabel.Parent.Parent.Parent:FindFirstChild("LockPurchase")
+                if lockPurchase then
+                    local hitbox = lockPurchase:FindFirstChild("Hitbox")
+                    if hitbox and hitbox:IsA("BasePart") then
+                        local targetCFrame = hitbox.CFrame + Vector3.new(0, 5, 0)
+                        Player.Character.HumanoidRootPart.CFrame = targetCFrame
+                        OrionLib:MakeNotification({
+                            Name = "Teleported to Lock Part",
+                            Content = "Teleported to Hitbox for studio lock.",
+                            Image = "rbxassetid://4483345998",
+                            Time = 3
+                        })
                     else
                         OrionLib:MakeNotification({
-                            Name = "PlotBlock Not Found",
-                            Content = "PlotBlock not found in Purchases.",
+                            Name = "Hitbox Not Found",
+                            Content = "Hitbox not found in LockPurchase.",
                             Image = "rbxassetid://4483345998",
                             Time = 3
                         })
                     end
                 else
                     OrionLib:MakeNotification({
-                        Name = "Purchases Not Found",
-                        Content = "Purchases not found in base hierarchy.",
+                        Name = "LockPurchase Not Found",
+                        Content = "LockPurchase not found in studio hierarchy.",
                         Image = "rbxassetid://4483345998",
                         Time = 3
                     })
                 end
             else
                 OrionLib:MakeNotification({
-                    Name = "Base Not Found",
-                    Content = "Could not find TextLabel with '" .. Player.Name .. "'s Base'.",
+                    Name = "Studio Not Found",
+                    Content = "Could not find TextLabel with '" .. Player.Name .. "'s Studio'.",
                     Image = "rbxassetid://4483345998",
                     Time = 3
                 })
@@ -418,27 +456,30 @@ local CombatTab = Window:MakeTab({
 local SlapSpeed = 0.1
 local AutoSlap = false
 
--- Supported slap tools
-local slapTools = {
+-- Supported combat tools (adjusted for Blox Fruits context)
+local combatTools = {
     "Bat",
     "SuperBat",
+    "Cutlass", -- Example Blox Fruits weapons
+    "Katana",
+    "Pipe"
 }
 
 CombatTab:AddToggle({
-    Name = "Auto-Slap",
+    Name = "Auto-Attack",
     Default = false,
     Callback = function(Value)
         AutoSlap = Value
         OrionLib:MakeNotification({
-            Name = "Auto-Slap",
-            Content = "Auto-Slap " .. (Value and "enabled" or "disabled"),
+            Name = "Auto-Attack",
+            Content = "Auto-Attack " .. (Value and "enabled" or "disabled"),
             Image = "rbxassetid://4483345998",
             Time = 3
         })
     end
 })
 
--- Auto-Slap Logic
+-- Auto-Attack Logic
 task.spawn(function()
     while true do
         if AutoSlap and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character:FindFirstChildOfClass("Humanoid") then
@@ -452,23 +493,20 @@ task.spawn(function()
                     local theirRoot = plr.Character.HumanoidRootPart
                     local dist = (myRoot.Position - theirRoot.Position).Magnitude
                     
-                    -- Fixed proximity check (10 studs)
+                    -- Proximity check (10 studs)
                     if dist <= 10 then
                         foundTarget = true
                         local toolFound = false
                         
-                        -- Check for any supported slap tool
-                        for _, toolName in pairs(slapTools) do
+                        -- Check for any supported combat tool
+                        for _, toolName in pairs(combatTools) do
                             local tool = Player.Backpack:FindFirstChild(toolName) or Player.Character:FindFirstChild(toolName)
                             if tool then
                                 toolFound = true
-                                -- Equip the tool if not already equipped
                                 if not Player.Character:FindFirstChild(toolName) then
                                     humanoid:EquipTool(tool)
-                                    task.wait(0.1) -- Wait for tool to equip
+                                    task.wait(0.1)
                                 end
-                                
-                                -- Activate the tool
                                 if tool:IsA("Tool") and tool.Parent == Player.Character then
                                     local success, err = pcall(function()
                                         tool:Activate()
@@ -482,23 +520,22 @@ task.spawn(function()
                                         })
                                     end
                                 end
-                                break -- Use the first available tool
+                                break
                             end
                         end
                         
                         if not toolFound then
                             OrionLib:MakeNotification({
                                 Name = "Tool Not Found",
-                                Content = "No supported slap tool (e.g., Tung Bat, Blackhole Slap) found in Backpack or Character.",
+                                Content = "No supported weapon (e.g., Cutlass, Katana) found.",
                                 Image = "rbxassetid://4483345998",
                                 Time = 3
                             })
                         end
-                        break -- Exit loop after finding and slapping one target
+                        break
                     end
                 end
             end
-            -- No automatic unequip; player must unequip manually
         end
         task.wait(SlapSpeed)
     end
@@ -550,7 +587,7 @@ VisualTab:AddToggle({
 })
 
 VisualTab:AddToggle({
-    Name = "BaseLockVisual",
+    Name = "StudioLockVisual",
     Default = false,
     Callback = function(Value)
         baseLockEnabled = Value
@@ -560,12 +597,12 @@ VisualTab:AddToggle({
             screenGui.Parent = Player:WaitForChild("PlayerGui")
             textLabel.Parent = screenGui
             textLabel.Size = UDim2.new(0, 150, 0, 50)
-            textLabel.Position = UDim2.new(1, -160, 1, -60) -- Right side: 10 pixels from right, 60 from bottom
+            textLabel.Position = UDim2.new(1, -160, 1, -60)
             textLabel.BackgroundTransparency = 0.5
             textLabel.BackgroundColor3 = Color3.new(0, 0, 0)
             textLabel.TextColor3 = Color3.new(1, 1, 1)
             textLabel.TextScaled = true
-            textLabel.Text = "Base Unlocks In: Loading..."
+            textLabel.Text = "Studio Unlocks In: Loading..."
             baseLockGui = screenGui
 
             spawn(function()
@@ -662,7 +699,7 @@ MiscTab:AddToggle({
         if antiAFK then
             spawn(function()
                 while antiAFK do
-                    task.wait(30) -- Simulate input every 30 seconds
+                    task.wait(30)
                     local virtualUser = game:GetService("VirtualUser")
                     virtualUser:CaptureController()
                     virtualUser:ClickButton2(Vector2.new())
@@ -709,7 +746,7 @@ MiscTab:AddButton({
         else
             OrionLib:MakeNotification({
                 Name = "Server Hop Failed",
-                Content = "No available tools found.",
+                Content = "No available servers found.",
                 Image = "rbxassetid://4483345998",
                 Time = 3
             })
@@ -724,7 +761,7 @@ MiscTab:AddToggle({
     Callback = function(Value)
         fpsBoost = Value
         if fpsBoost then
-            settings().Rendering.QualityLevel = 1 -- Lowest quality
+            settings().Rendering.QualityLevel = 1
             game:GetService("Lighting").GlobalShadows = false
             game:GetService("Lighting").FogEnd = 9e9
             OrionLib:MakeNotification({
@@ -734,7 +771,7 @@ MiscTab:AddToggle({
                 Time = 3
             })
         else
-            settings().Rendering.QualityLevel = 6 -- Reset to default
+            settings().Rendering.QualityLevel = 6
             game:GetService("Lighting").GlobalShadows = true
             game:GetService("Lighting").FogEnd = 100000
             OrionLib:MakeNotification({
@@ -757,8 +794,8 @@ MiscTab:AddToggle({
             spawn(function()
                 while spinBot do
                     local root = Player.Character.HumanoidRootPart
-                    root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(5), 0) -- Rotate 5 degrees per frame
-                    task.wait(0.01) -- Adjust speed of spin (0.01 seconds per rotation step)
+                    root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(5), 0)
+                    task.wait(0.01)
                 end
             end)
             OrionLib:MakeNotification({
@@ -815,7 +852,6 @@ SettingsTab:AddButton({
 SettingsTab:AddButton({
     Name = "Reset to Default",
     Callback = function()
-        -- Reset Toggles
         espEnabled = false
         nameEnabled = false
         baseLockEnabled = false
@@ -825,11 +861,7 @@ SettingsTab:AddButton({
         spinBot = false
         flyEnabled = false
         noclipEnabled = false
-
-        -- Reset Sliders
         GravityScale = 1
-
-        -- Update UI and notify
         OrionLib:MakeNotification({
             Name = "Settings Reset",
             Content = "All settings have been reset to default!",
