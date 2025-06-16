@@ -294,6 +294,8 @@ local MainTab = Window:MakeTab({
 })
 
 local GravityScale = 1
+local WalkSpeed = 16 -- Default Roblox walkspeed
+local JumpPower = 50 -- Default Roblox jump power
 local selectedTool = nil
 local flyEnabled = false
 local noclipEnabled = false
@@ -311,6 +313,32 @@ MainTab:AddSlider({
     Increment = 0.1,
     Callback = function(Value)
         GravityScale = Value
+    end
+})
+
+-- WalkSpeed Slider
+MainTab:AddSlider({
+    Name = "WalkSpeed",
+    Min = 0,
+    Max = 100,
+    Default = 16,
+    Color = Color3.fromRGB(255, 255, 255),
+    Increment = 1,
+    Callback = function(Value)
+        WalkSpeed = Value
+    end
+})
+
+-- JumpPower Slider
+MainTab:AddSlider({
+    Name = "JumpPower",
+    Min = 0,
+    Max = 150,
+    Default = 50,
+    Color = Color3.fromRGB(255, 255, 255),
+    Increment = 1,
+    Callback = function(Value)
+        JumpPower = Value
     end
 })
 
@@ -500,9 +528,14 @@ MainTab:AddToggle({
     end
 })
 
--- Looped updates: Gravity
+-- Looped updates: Gravity, WalkSpeed, and JumpPower
 RunService.RenderStepped:Connect(function()
     game.Workspace.Gravity = 196.2 * GravityScale
+    if Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") then
+        local humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
+        humanoid.WalkSpeed = WalkSpeed
+        humanoid.JumpPower = JumpPower
+    end
 end)
 
 -- ======= COMBAT TAB =======
@@ -919,6 +952,8 @@ SettingsTab:AddButton({
         flyEnabled = false
         noclipEnabled = false
         GravityScale = 1
+        WalkSpeed = 16
+        JumpPower = 50
         OrionLib:MakeNotification({
             Name = "Settings Reset",
             Content = "All settings have been reset to default!",
