@@ -211,14 +211,12 @@ local function autoLockFunction()
                     local baseLockLabel = hitbox.BillboardGui:FindFirstChild("TimeLeft")
                     if baseLockLabel and baseLockLabel:IsA("TextLabel") then
                         if baseLockLabel.Text == "3" then
-                            local originalCFrame = Player.Character.HumanoidRootPart.CFrame
                             local targetCFrame = hitbox.CFrame + Vector3.new(0, 5, 0)
                             Player.Character.HumanoidRootPart.CFrame = targetCFrame
                             task.wait(0.1) -- Brief pause to ensure interaction
-                            Player.Character.HumanoidRootPart.CFrame = originalCFrame
                             OrionLib:MakeNotification({
                                 Name = "AutoLock Teleport",
-                                Content = "Teleported to Hitbox and back (TimeLeft = 2).",
+                                Content = "Teleported to Hitbox (TimeLeft = 2).",
                                 Image = "rbxassetid://4483345998",
                                 Time = 3
                             })
@@ -296,9 +294,9 @@ MainTab:AddSlider({
     end
 })
 
--- Tween to Base
+-- Teleport to Studio
 MainTab:AddButton({
-    Name = "Tween to Studio",
+    Name = "Teleport to Studio",
     Callback = function()
         if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
             local textLabel = findBaseTextLabel()
@@ -306,12 +304,10 @@ MainTab:AddButton({
                 local basePart = textLabel.Parent.Parent.Parent.Sign
                 if basePart:IsA("BasePart") or basePart:IsA("Model") then
                     local targetCFrame = basePart:IsA("BasePart") and basePart.CFrame + Vector3.new(0, 5, 0) or basePart:GetPrimaryPartCFrame() + Vector3.new(0, 5, 0)
-                    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-                    local tween = TweenService:Create(Player.Character.HumanoidRootPart, tweenInfo, {CFrame = targetCFrame})
-                    tween:Play()
+                    Player.Character.HumanoidRootPart.CFrame = targetCFrame
                     OrionLib:MakeNotification({
-                        Name = "Tweening to Studio",
-                        Content = "Moving to your studio!",
+                        Name = "Teleported to Studio",
+                        Content = "Instantly teleported to your studio!",
                         Image = "rbxassetid://4483345998",
                         Time = 3
                     })
@@ -759,7 +755,7 @@ MiscTab:AddButton({
         local req = HttpService:GetAsync("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")
         local data = HttpService:JSONDecode(req)
         for _, server in pairs(data.data) do
-            if server.playing < server.maxPlayers and server.id ~= game.JobId then
+            if server.playing < server.maxPlayers and server.id != game.JobId then
                 table.insert(servers, server.id)
             end
         end
