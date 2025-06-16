@@ -182,7 +182,7 @@ MainTab:AddButton({
         if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
             local textLabel = findBaseTextLabel()
             if textLabel then
-                local basePart = textLabel.Parent.Parent.Parent.Parent
+                local basePart = textLabel.Parent.Parent.Parent.Sign
                 if basePart:IsA("BasePart") or basePart:IsA("Model") then
                     local targetCFrame = basePart:IsA("BasePart") and basePart.CFrame + Vector3.new(0, 5, 0) or basePart:GetPrimaryPartCFrame() + Vector3.new(0, 5, 0)
                     local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
