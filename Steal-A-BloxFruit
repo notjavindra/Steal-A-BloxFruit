@@ -175,56 +175,6 @@ MainTab:AddSlider({
     end
 })
 
--- Tools Dropdown (Assuming Blox Fruits tools like swords or fruits)
-local toolOptions = {}
-for _, item in pairs(game.ReplicatedStorage:WaitForChild("Remotes", 5) or game.ReplicatedStorage:WaitForChild("Items", 5) or game.Workspace:WaitForChild("Items", 5) or {}) do
-    if item:IsA("Tool") then
-        table.insert(toolOptions, item.Name)
-    end
-end
-MainTab:AddDropdown({
-    Name = "Select Fruit/Weapon",
-    Default = toolOptions[1] or "",
-    Options = toolOptions,
-    Callback = function(Value)
-        selectedTool = Value
-    end
-})
-
--- Get Selected Tool Button
-MainTab:AddButton({
-    Name = "Get Selected Fruit/Weapon",
-    Callback = function()
-        if selectedTool and Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") then
-            local tool = game.ReplicatedStorage:FindFirstChild(selectedTool) or game.Workspace:FindFirstChild(selectedTool)
-            if tool and tool:IsA("Tool") then
-                local clonedTool = tool:Clone()
-                clonedTool.Parent = Player.Backpack
-                OrionLib:MakeNotification({
-                    Name = "Item Given",
-                    Content = "You received " .. selectedTool .. "!",
-                    Image = "rbxassetid://4483345998",
-                    Time = 3
-                })
-            else
-                OrionLib:MakeNotification({
-                    Name = "Error",
-                    Content = "Fruit/Weapon not found.",
-                    Image = "rbxassetid://4483345998",
-                    Time = 3
-                })
-            end
-        else
-            OrionLib:MakeNotification({
-                Name = "Error",
-                Content = "No item selected or character not found.",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
-        end
-    end
-})
-
 -- Tween to Base
 MainTab:AddButton({
     Name = "Tween to Studio",
@@ -460,10 +410,7 @@ local AutoSlap = false
 local combatTools = {
     "Bat",
     "SuperBat",
-    "Cutlass", -- Example Blox Fruits weapons
-    "Katana",
-    "Pipe"
-}
+ }
 
 CombatTab:AddToggle({
     Name = "Auto-Attack",
