@@ -314,9 +314,9 @@ MainTab:AddSlider({
     end
 })
 
--- Tween to Base
+-- Teleport to Studio
 MainTab:AddButton({
-    Name = "Tween to Studio",
+    Name = "Teleport to Studio",
     Callback = function()
         if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
             local textLabel = findBaseTextLabel()
@@ -324,15 +324,24 @@ MainTab:AddButton({
                 local basePart = textLabel.Parent.Parent.Parent.Sign
                 if basePart:IsA("BasePart") or basePart:IsA("Model") then
                     local targetCFrame = basePart:IsA("BasePart") and basePart.CFrame + Vector3.new(0, 5, 0) or basePart:GetPrimaryPartCFrame() + Vector3.new(0, 5, 0)
-                    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-                    local tween = TweenService:Create(Player.Character.HumanoidRootPart, tweenInfo, {CFrame = targetCFrame})
-                    tween:Play()
-                    OrionLib:MakeNotification({
-                        Name = "Tweening to Studio",
-                        Content = "Moving to your studio!",
-                        Image = "rbxassetid://4483345998",
-                        Time = 3
-                    })
+                    local success, err = pcall(function()
+                        Player.Character.HumanoidRootPart.CFrame = targetCFrame
+                    end)
+                    if success then
+                        OrionLib:MakeNotification({
+                            Name = "Teleport to Studio",
+                            Content = "Teleported to your studio!",
+                            Image = "rbxassetid://4483345998",
+                            Time = 3
+                        })
+                    else
+                        OrionLib:MakeNotification({
+                            Name = "Teleport Error",
+                            Content = "Failed to teleport: " .. tostring(err),
+                            Image = "rbxassetid://4483345998",
+                            Time = 3
+                        })
+                    end
                 else
                     OrionLib:MakeNotification({
                         Name = "Studio Not Found",
